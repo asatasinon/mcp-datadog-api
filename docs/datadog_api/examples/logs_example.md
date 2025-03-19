@@ -36,36 +36,3 @@ with ApiClient(configuration) as api_client:
     print(response)
 ```
 
-### 简化版本代码示例
-
-```python
-"""
-简化版本的日志搜索
-"""
-from datadog import initialize, api
-import time
-
-options = {
-    'api_key': '<DATADOG_API_KEY>',
-    'app_key': '<DATADOG_APPLICATION_KEY>'
-}
-
-initialize(**options)
-
-# 设置查询参数
-now = int(time.time())
-fifteen_mins_ago = now - 15 * 60
-query = 'service:web'
-
-# 查询日志
-logs = api.Logs.query(
-    time={
-        'from': fifteen_mins_ago,
-        'to': now
-    },
-    query=query,
-    limit=10
-)
-
-print(logs)
-```

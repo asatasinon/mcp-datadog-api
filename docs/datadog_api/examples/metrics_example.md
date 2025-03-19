@@ -37,9 +37,8 @@ from datadog_api_client.v1.api.metrics_api import MetricsApi
 configuration = Configuration()
 with ApiClient(configuration) as api_client:
     api_instance = MetricsApi(api_client)
-    response = api_instance.search_metrics(
-        q="metrics:system.cpu",
-        page_size=5
+    response = api_instance.list_metrics(
+        q="metrics:system.cpu"
     )
 
     print(response)
@@ -61,28 +60,6 @@ configuration = Configuration()
 with ApiClient(configuration) as api_client:
     api_instance = MetricsApi(api_client)
     response = api_instance.get_metric_metadata(
-        metric_name="system.cpu.user",
-    )
-
-    print(response)
-```
-
-## list metric assets
-
-### 代码示例
-
-```python
-"""
-获取与指标相关的资产示例
-"""
-
-from datadog_api_client import ApiClient, Configuration
-from datadog_api_client.v2.api.metrics_api import MetricsApi
-
-configuration = Configuration()
-with ApiClient(configuration) as api_client:
-    api_instance = MetricsApi(api_client)
-    response = api_instance.list_metric_assets(
         metric_name="system.cpu.user",
     )
 
@@ -149,27 +126,6 @@ with ApiClient(configuration) as api_client:
     print(response)
 ```
 
-### 简化版本代码示例
-
-```python
-"""
-简化的查询时间序列数据示例
-"""
-from datadog import initialize, api
-import time
-
-options = {
-    'api_key': '<DATADOG_API_KEY>',
-    'app_key': '<DATADOG_APPLICATION_KEY>'
-}
-
-initialize(**options)
-
-now = int(time.time())
-query = 'system.cpu.idle{*}by{host}'
-print(api.Metric.query(start=now - 3600, end=now, query=query))
-```
-
 ## query scalar
 
 ### 代码示例
@@ -229,25 +185,4 @@ with ApiClient(configuration) as api_client:
     response = api_instance.query_scalar_data(body=body)
 
     print(response)
-```
-
-### 简化版本代码示例
-
-```python
-"""
-简化的查询标量数据示例
-"""
-from datadog import initialize, api
-import time
-
-options = {
-    'api_key': '<DATADOG_API_KEY>',
-    'app_key': '<DATADOG_APPLICATION_KEY>'
-}
-
-initialize(**options)
-
-now = int(time.time())
-query = 'avg:system.cpu.user{*}'
-print(api.Metric.get_scalar_value(start=now - 3600, end=now, query=query))
 ```

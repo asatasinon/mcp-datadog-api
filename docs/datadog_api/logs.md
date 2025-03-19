@@ -149,7 +149,7 @@ method: `POST`
 }
 ```
 
-> **代码示例请参考：** [logs_example.md](example/logs_example.md#query-logs)
+> **代码示例请参考：** [logs_example.md](examples/logs_example.md#query-logs)
 
 
 

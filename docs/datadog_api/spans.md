@@ -4,9 +4,11 @@
 
 ### 概述
 
-检索满足查询条件的APM调用链数据。该端点需要 `apm_read` 权限。
+查询接口返回与Span搜索查询匹配的调用链数据，结果支持分页。
 
-OAuth应用需要 `apm_read` 授权范围来访问此端点。
+该接口可用于构建复杂的Span过滤和搜索功能。此端点的访问限制为每小时`300`个请求。
+
+OAuth应用需要`apm_read`授权范围才能访问此端点。
 
 ### 请求
 
@@ -17,38 +19,65 @@ method: `POST`
 
 | 名称 | 类型 | 描述 |
 | --- | --- | --- |
+| data | object | 搜索请求数据 |
+
+##### data对象
+
+| 名称 | 类型 | 描述 |
+| --- | --- | --- |
+| attributes | object | 搜索请求属性 |
+| type | string | 资源类型，应为 `search_request` |
+
+##### attributes对象
+
+| 名称 | 类型 | 描述 |
+| --- | --- | --- |
 | filter | object | 查询过滤条件 |
-| page | object | 分页参数 |
-| sort | string | 排序方式，例如 `-timestamp` 表示按时间戳降序排序 |
+| options | object | 查询选项（可选） |
+| page | object | 分页选项（可选） |
+| sort | string | 排序方式，如 `timestamp`（升序）或 `-timestamp`（降序） |
 
 ##### filter对象
 
 | 名称 | 类型 | 描述 |
 | --- | --- | --- |
-| query | string | 查询字符串，使用Datadog APM查询语法 |
-| from | string | 查询开始时间，ISO8601格式或相对时间（如 "now-15m"） |
-| to | string | 查询结束时间，ISO8601格式或相对时间（如 "now"） |
+| query | string | 查询字符串 |
+| from | string | 查询开始时间 |
+| to | string | 查询结束时间 |
+
+##### options对象
+
+| 名称 | 类型 | 描述 |
+| --- | --- | --- |
+| timezone | string | 时区，如 `GMT` |
 
 ##### page对象
 
 | 名称 | 类型 | 描述 |
 | --- | --- | --- |
-| limit | integer | 返回的最大调用链数量，默认为10，最大为1000 |
-| cursor | string | 用于分页的游标 |
+| limit | integer | 每页返回的结果数量 |
 
 ### 示例请求
 
 ```json
 {
-  "filter": {
-    "query": "service:web-store",
-    "from": "now-15m",
-    "to": "now"
-  },
-  "page": {
-    "limit": 25
-  },
-  "sort": "-timestamp"
+  "data": {
+    "attributes": {
+      "filter": {
+        "from": "now-15m",
+        "query": "*",
+        "to": "now"
+      },
+      "options": {
+        "timezone": "GMT"
+      },
+      "page": {
+        "limit": 25
+      },
+      "sort": "timestamp"
+    },
+    "type": "search_request"
+  }
 }
 ```
 
@@ -56,46 +85,23 @@ method: `POST`
 
 #### 200 成功
 
-成功返回符合条件的调用链列表。
+成功返回匹配的Span列表。
 
 ##### 模型
 
 | 字段 | 类型 | 描述 |
 | --- | --- | --- |
-| data | array | 调用链数组 |
-| links | object | 分页链接 |
+| data | array | Span数据数组 |
 | meta | object | 元数据信息 |
+| links | object | 分页链接 |
 
 ###### data数组项
 
 | 字段 | 类型 | 描述 |
 | --- | --- | --- |
-| id | string | 调用链唯一标识符 |
-| type | string | 资源类型，值为 "span" |
-| attributes | object | 调用链属性 |
-
-###### attributes对象
-
-| 字段 | 类型 | 描述 |
-| --- | --- | --- |
-| service | string | 服务名称 |
-| name | string | 操作名称 |
-| resource | string | 资源名称 |
-| trace_id | string | 所属跟踪ID |
-| span_id | string | 调用链ID |
-| parent_id | string | 父调用链ID |
-| duration | integer | 持续时间（纳秒） |
-| start | integer | 开始时间（纳秒） |
-| error | boolean | 是否发生错误 |
-| tags | object | 标签对象 |
-| metrics | object | 指标对象 |
-| meta | object | 元数据对象 |
-
-###### links对象
-
-| 字段 | 类型 | 描述 |
-| --- | --- | --- |
-| next | string | 获取下一页结果的链接 |
+| attributes | object | Span属性 |
+| id | string | Span唯一标识符 |
+| type | string | 资源类型，值为 `span` |
 
 ###### meta对象
 
@@ -103,49 +109,46 @@ method: `POST`
 | --- | --- | --- |
 | page | object | 分页信息 |
 
+###### links对象
+
+| 字段 | 类型 | 描述 |
+| --- | --- | --- |
+| next | string | 下一页链接（如果有） |
+
 ### 示例响应
 
 ```json
 {
   "data": [
     {
-      "id": "AAAAAYHyf5wRjw39LwAAAABBWUh5ZjV3UmpyOE5wdmFqRVZkUT09",
-      "type": "span",
       "attributes": {
+        "duration": 105684,
         "service": "web-store",
-        "name": "web.request",
-        "resource": "GET /api/products",
-        "trace_id": "7136434181313622116",
-        "span_id": "7136434181313622116",
-        "parent_id": 0,
-        "duration": 246600000,
-        "start": 1623856690494787000,
-        "error": false,
-        "meta": {
-          "http.method": "GET",
-          "http.url": "/api/products",
-          "env": "production",
-          "version": "v1.0.0"
-        },
-        "metrics": {
-          "system.process.cpu.user": 0.23,
-          "system.process.cpu.system": 0.15
+        "span_id": "7395267463157753000",
+        "start": "2023-06-16T14:05:12.252Z",
+        "trace_id": "2798673868388127293",
+        "attributes": {
+          "environment": "production",
+          "resource_name": "GET /api/products",
+          "status": "ok"
         }
-      }
+      },
+      "id": "span-1",
+      "type": "span"
     }
   ],
-  "links": {
-    "next": "https://api.datadoghq.com/api/v2/spans/events?page[cursor]=eyJzdGFydEF0IjoiQVlIeVFyS1NZY3YyVVE9PSJ9"
-  },
   "meta": {
     "page": {
-      "after": "AAAAAYHyf5wRjw39LwAAAABBWUh5ZjV3UmpyOE5wdmFqRVZkUT09"
+      "after": "span-1"
     }
+  },
+  "links": {
+    "next": "https://api.datadoghq.com/api/v2/spans/events/search?page[cursor]=span-1"
   }
 }
 ```
 
-> **代码示例请参考：** [spans_example.md](example/spans_example.md#query-spans)
+> **代码示例请参考：** [spans_example.md](examples/spans_example.md#query-spans)
 
 ## aggregate spans
 
@@ -292,5 +295,5 @@ method: `POST`
 }
 ```
 
-> **代码示例请参考：** [spans_example.md](example/spans_example.md#aggregate-spans)
+> **代码示例请参考：** [spans_example.md](examples/spans_example.md#aggregate-spans)
 

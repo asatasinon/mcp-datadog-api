@@ -52,7 +52,7 @@ method: `GET`
 }
 ```
 
-> **代码示例请参考：** [metrics_example.md](example/metrics_example.md#list-metrics)
+> **代码示例请参考：** [metrics_example.md](examples/metrics_example.md#list-metrics)
 
 ## search metrics
 
@@ -74,8 +74,6 @@ method: `GET`
 | 名称      | 类型    | 描述                          |
 | --------- | ------- | ----------------------------- |
 | q [必需]  | string  | 要搜索的查询字符串            |
-| page_size | integer | 每页返回的指标数量，最大为200 |
-| page      | integer | 要获取的分页，首页是0         |
 
 ##### 查询语法
 
@@ -101,7 +99,6 @@ method: `GET`
 | 字段     | 类型   | 描述                     |
 | -------- | ------ | ------------------------ |
 | results  | object | 包含查询结果的对象       |
-| metadata | object | 元数据信息，包括分页信息 |
 
 ##### results对象
 
@@ -121,16 +118,11 @@ method: `GET`
       "system.cpu.iowait",
       "system.cpu.stolen"
     ]
-  },
-  "metadata": {
-    "page": 0,
-    "page_size": 5,
-    "total_count": 125
   }
 }
 ```
 
-> **代码示例请参考：** [metrics_example.md](example/metrics_example.md#search-metrics)
+> **代码示例请参考：** [metrics_example.md](examples/metrics_example.md#search-metrics)
 
 ## query metric metadata
 
@@ -159,12 +151,6 @@ method: `GET`
 
 ##### 模型
 
-| 字段     | 类型   | 描述                 |
-| -------- | ------ | -------------------- |
-| metadata | object | 包含指标元数据的对象 |
-
-##### metadata对象
-
 | 字段            | 类型    | 描述                                                             |
 | --------------- | ------- | ---------------------------------------------------------------- |
 | description     | string  | 指标的描述                                                       |
@@ -179,61 +165,18 @@ method: `GET`
 
 ```json
 {
-  "metadata": {
-    "description": "系统CPU用户时间比例",
-    "integration": "system",
-    "per_unit": "second",
-    "short_name": "cpu user",
-    "statsd_interval": 20,
-    "type": "gauge",
-    "unit": "percent"
-  }
+  "description": "系统CPU用户时间比例",
+  "integration": "system",
+  "per_unit": "second",
+  "short_name": "cpu user",
+  "statsd_interval": 20,
+  "type": "gauge",
+  "unit": "percent"
 }
 ```
 
-> **代码示例请参考：** [metrics_example.md](example/metrics_example.md#query-metric-metadata)
+> **代码示例请参考：** [metrics_example.md](examples/metrics_example.md#query-metric-metadata)
 
-## list metric assets
-
-### 概述
-
-获取与指定指标相关联的仪表板、监控和其他资产。该端点需要 `metrics_read` 权限。
-
-OAuth应用需要 `metrics_read` 授权范围来访问此端点。
-
-### 请求
-
-api: `https://api.datadoghq.com/api/v2/metrics/{metric_name}/assets`
-method: `GET`
-
-### 路径参数
-
-| 名称               | 类型   | 描述             |
-| ------------------ | ------ | ---------------- |
-| metric_name [必需] | string | 要查询的指标名称 |
-
-### 响应
-
-#### 200 成功
-
-成功返回与指标相关的资产列表。
-
-##### 模型
-
-| 字段 | 类型   | 描述               |
-| ---- | ------ | ------------------ |
-| data | object | 包含资产数据的对象 |
-
-##### data对象
-
-| 字段       | 类型  | 描述                   |
-| ---------- | ----- | ---------------------- |
-| dashboards | array | 使用该指标的仪表板列表 |
-| monitors   | array | 使用该指标的监控列表   |
-| notebooks  | array | 使用该指标的笔记本列表 |
-| slos       | array | 使用该指标的SLO列表    |
-
-> **代码示例请参考：** [metrics_example.md](example/metrics_example.md#list-metric-assets)
 
 ## query timeseries
 
@@ -360,7 +303,7 @@ method: `POST`
 | scope        | string  | 作用域                 |
 | interval     | integer | 数据点之间的间隔（秒） |
 
-> **代码示例请参考：** [metrics_example.md](example/metrics_example.md#query-timeseries)
+> **代码示例请参考：** [metrics_example.md](examples/metrics_example.md#query-timeseries)
 
 ## query scalar
 
@@ -476,4 +419,4 @@ method: `POST`
 | times    | array  | 对应时间戳数组     |
 | grouping | object | 分组信息（如果有） |
 
-> **代码示例请参考：** [metrics_example.md](example/metrics_example.md#query-scalar)
+> **代码示例请参考：** [metrics_example.md](examples/metrics_example.md#query-scalar)
